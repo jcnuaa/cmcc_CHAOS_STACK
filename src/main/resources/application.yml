@@ -10,27 +10,27 @@ scheduler:
   poolSize: 200
 
 cron:
-  schedule: 0 0/3 * * * ?
+  schedule: 0 0/1 * * * ?
 
-dryRun: true
+dryRun: false
 
 default:
   probability: 0.3
   
 openstack:
   username: admin
-  password: datalyse
-  projectID: ecd02933c4244991b83e5a86c0279645
-  domainName: Default
-  endpoint: http://193.51.236.63/identity/v3
+  password: 123456
+  projectID: 44ca09c4917a47ebb3f0ae3f98bf26dc
+  domainName: default
+  endpoint: http://10.144.85.93/identity/v3
 ssh:
-  user: ubuntu
-  key: /home/magg/.ssh/cloud.key
+  user: root     #ubuntu
+  key:  /root/.ssh/id_rsa   #/home/root/.ssh/cloud.key
   
 redis:
-  hostname: localhost
+  hostname: 192.168.175.132
   port: 6379
-  password: foobared
+  password: 123456
   
 spring:
   main:
@@ -44,8 +44,18 @@ security:
 failure:
  modes:
    shutdowninstance: true
-   blockallnetworktraffic: true 
-   
-whitelist: leech, test
+   blockallnetworktraffic: false
+   burncpu: false
+   burnio: false
+   faildns: true
+   filldisk: false
+   killprocesses: true
+   networkcorruption: false
+   networklatency: false
+   networkloss: false
+   nullroute: false
+
+whitelist: #leech, test
+blacklist: #chaos-stack,spin #jiangchao-spinnaker
    
   

@@ -16,5 +16,6 @@ public class ShutdownInstance {
     	
 			member.getInfrastructure()
 			.terminateInstance(member.getId());
+        logger.info("shutdown {}",member.getName());
     }
 }

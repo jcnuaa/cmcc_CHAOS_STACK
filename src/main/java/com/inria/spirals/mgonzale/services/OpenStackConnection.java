@@ -6,12 +6,13 @@ import java.util.List;
 
 import java.util.stream.Collectors;
 
+import java.io.IOException;
+import java.net.InetAddress;
+
 import org.openstack4j.api.OSClient.OSClientV3;
 import org.openstack4j.openstack.OSFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-
 
 import org.openstack4j.model.common.Identifier;
 import org.openstack4j.model.compute.Server;
@@ -55,11 +56,20 @@ public class OpenStackConnection {
 			   
 			   Server s = osc.compute().servers().get("73bb0591-8f01-47c4-bdd2-56d0dd59f090");
 			   System.out.println(s.toString());
-			   ArrayList<ArrayList<String>> listOLists = new ArrayList<ArrayList<String>>(); 
+			   ArrayList<ArrayList<String>> listOLists = new ArrayList<ArrayList<String>>();
+
 			   s.getAddresses().getAddresses().entrySet().stream().forEach( e ->
 			   listOLists.add( e.getValue()
 				   .stream()
 				   .filter(p -> p.getVersion() == 4)
+					   .filter(p -> {try {
+								   return InetAddress.getByName(p.getAddr()).isReachable(3000);
+							   } catch (IOException e1) {
+								   e1.printStackTrace();
+								   return false;
+							   }
+							   }
+					   )
 				   .map(p -> p.getAddr())
 				   .collect(Collectors.toCollection(ArrayList::new)))
 				   

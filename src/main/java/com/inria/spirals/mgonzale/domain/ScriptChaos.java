@@ -17,35 +17,27 @@ import net.schmizz.sshj.transport.TransportException;
 import net.schmizz.sshj.xfer.FileSystemFile;
 
 public abstract class ScriptChaos {
-	
+
 	@Autowired
 	private ResourceLoader resourceLoader;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
-	private final String name;
-    private final int timeout = 10;
-	
-	public String getName() {
-		return name;
-	}
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public ScriptChaos(String name){
-		this.name = name;
-	}
-	
-	public void apply (Member member){
+	private final int timeout = 10;
+
+
+	public void apply (Member member,String name){
 		SSHClient ssh = member.getInfrastructure().connectSsh(member.getId());
 		int exitStat;
 		String result = null;
 
-		String filename = getName().toLowerCase() + ".sh";
+		String filename = name.toLowerCase() + ".sh";
 		try {
 			ssh.useCompression();
 		} catch (TransportException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		Resource res = resourceLoader.getResource("classpath:" +"/scripts/"+ filename);
 		try {
 			ssh.newSCPFileTransfer().upload(new FileSystemFile(res.getFile().getAbsolutePath()),"/tmp");
@@ -53,61 +45,62 @@ public abstract class ScriptChaos {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-        try {
 
-	    	   
-	    	   Session session = ssh.startSession();
-            try {
-         	   	            	   
-         	   Command cmd = session.exec("/bin/bash /tmp/" + filename);
-                cmd.join(timeout+10, TimeUnit.SECONDS);
-                exitStat = cmd.getExitStatus();
-                
-                if (exitStat != 0){
-                	logger.warn("Got non-zero output from running script: {}", exitStat);
-                }
-                
-                
-                
-            } finally{
-         	   session.close();
-            }
-            ssh.disconnect();
-        } 
-        
-        
-        catch (TransportException t ){
-     	   result = t.getMessage();
-	    	   try {
-					ssh.disconnect();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	       } catch (ConnectionException c) {
-     	   result = c.getMessage();
+		try {
 
-	    	   try {
-					ssh.disconnect();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	       } catch (Exception e) {
 
-	    	    try {
-					ssh.disconnect();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+			Session session = ssh.startSession();
+			try {
+
+				Command cmd = session.exec("/bin/bash /tmp/" + filename);
+				cmd.join(timeout+10, TimeUnit.SECONDS);
+				exitStat = cmd.getExitStatus();
+
+				if (exitStat != 0){
+					logger.warn("Got non-zero output from running script: {}", exitStat);
 				}
-	       }
-      	
-        if (!result.isEmpty()){
-        	System.out.println(result);
-        }
-		
+
+
+
+			} finally{
+				session.close();
+			}
+			ssh.disconnect();
+		}
+
+
+		catch (TransportException t ){
+			result = t.getMessage();
+			try {
+				ssh.disconnect();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (ConnectionException c) {
+			result = c.getMessage();
+
+			try {
+				ssh.disconnect();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+
+			try {
+				ssh.disconnect();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+
+		//if (!result.isEmpty()){
+		//	System.out.println(result);
+			//logger.info("scriptchaos  error  : {}",result);
+		//}
+
 	}
 
 
