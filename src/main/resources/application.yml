@@ -52,7 +52,7 @@ failure:
    killprocesses: true
    networkcorruption: false
    networklatency: false
-   networkloss: false
+   networkloss: true
    nullroute: false
 
 whitelist: #leech, test
