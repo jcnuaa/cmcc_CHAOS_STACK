@@ -153,7 +153,7 @@ public final class OpenStackInfrastructure implements Infrastructure {
 		try {
 			ssh.setConnectTimeout(sshTimeout);
 			ssh.setTimeout(sshTimeout);
-			ssh.connect(getIPv4Addr(instanceId));
+			ssh.connect(getIpv4Address(instanceId));
 			ssh.authPublickey(sshUser, sshKey);
 		} catch (TransportException t) {
 			try {
@@ -186,13 +186,7 @@ public final class OpenStackInfrastructure implements Infrastructure {
 	public String getIPv4Addr(final String instanceId) {
 		OSClientV3 osc = OSFactory.clientFromToken(this.token);
 
-		//浮动ip
-/*        OSClientV3 os = OSFactory.clientFromToken(this.token);
-        FloatingIP ip = os.compute().floatingIps().allocateIP("poolname");
-        NetFloatingIP netFloatingIP = os.networking().floatingip().get(ip.getId());
-        Server server = os.compute().servers().get(instanceId);
-        ActionResponse r = os.compute().floatingIps().addFloatingIP(server, netFloatingIP.getFloatingIpAddress());
-        System.out.println(r);*/
+
 
 		Server s = osc.compute().servers().get(instanceId);
 		ArrayList<ArrayList<String>> listOLists = new ArrayList<ArrayList<String>>();
@@ -224,4 +218,17 @@ public final class OpenStackInfrastructure implements Infrastructure {
 	}
 
 
+	public String getIpv4Address(final String instanceId){
+		//浮动ip
+        OSClientV3 os = OSFactory.clientFromToken(this.token);
+        FloatingIP ip = os.compute().floatingIps().allocateIP("ext-net");
+        NetFloatingIP netFloatingIP = os.networking().floatingip().get(ip.getId());
+        Server server = os.compute().servers().get(instanceId);
+        String myfloatingip = netFloatingIP.getFloatingIpAddress();
+        logger.info("floatingip is --------------{}",myfloatingip);
+        ActionResponse r = os.compute().floatingIps().addFloatingIP(server, myfloatingip);
+        logger.info("actionresponse is --------------{}",r);
+        System.out.println(r);
+        return myfloatingip;
+	}
 }
