@@ -43,7 +43,7 @@ security:
        
 failure:
  modes:
-   shutdowninstance: true
+   shutdowninstance: false
    blockallnetworktraffic: false
    burncpu: false
    burnio: false
