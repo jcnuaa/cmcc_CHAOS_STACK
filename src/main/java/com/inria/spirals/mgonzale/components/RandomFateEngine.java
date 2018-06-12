@@ -10,7 +10,9 @@ import org.springframework.util.StringUtils;
 
 import com.inria.spirals.mgonzale.domain.Member;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 @Component
@@ -27,6 +29,8 @@ final class RandomFateEngine implements FateEngine {
     private final Random random;
 
     private final String[] whitelist;
+
+    private List<String> mlistPrefix2 =new ArrayList<>();
 
     @Autowired
     RandomFateEngine(@Value("${blacklist:}") String[] blacklist,
@@ -47,8 +51,28 @@ final class RandomFateEngine implements FateEngine {
     }
 
     @Override
-    public Boolean shouldDie(Member member) {
+    public Boolean shouldDie(Member member,int size) {
+        /*String prefix2=member.getName().substring(0,2);
+        List<String> mlistPrefix2 =new ArrayList<>();
+        for(Member mm : mlist){
+            mlistPrefix2.add(mm.getName().substring(0,2));
+        }
+        if(mlistPrefix2.contains(prefix2)){
+            logger.info("the instance ----{}----- should not die,cluster HA",member.getName());
+            return false;
+        }*/
+        if(mlistPrefix2.size()==size){
+            mlistPrefix2.clear();
+        }
+
+        if (mlistPrefix2.contains(member.getName().substring(0,2))){
+            mlistPrefix2.add("null");
+            logger.info("the instance ----{}----- should not die,cluster HA",member.getName());
+            return false;
+        }
+
         if (isWhitelisted(member) || !isBlacklisted(member)) {
+            mlistPrefix2.add("null");
             return false;
         }
 
@@ -58,7 +82,16 @@ final class RandomFateEngine implements FateEngine {
             .candidate(this.defaultProbability)
             .get(Float::parseFloat);
 
-        return this.random.nextFloat() < probability;
+        //return this.random.nextFloat() < probability;
+        Boolean rate=this.random.nextFloat() < probability;
+        if(rate){
+            mlistPrefix2.add(member.getName().substring(0,2));
+            logger.info("the instance ----{}----- should die",member.getName());
+        }else{
+            mlistPrefix2.add("null");
+            logger.info("the instance ----{}----- should  not die",member.getName());
+        }
+        return rate;
     }
 
     private String getProbability(String name) {

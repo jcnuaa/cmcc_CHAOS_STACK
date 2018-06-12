@@ -2,6 +2,8 @@ package com.inria.spirals.mgonzale.components;
 
 import com.inria.spirals.mgonzale.domain.Member;
 
+import java.util.List;
+
 public interface FateEngine {
 
     /**
@@ -10,6 +12,6 @@ public interface FateEngine {
      * @param member The {@link Member} to evaluate
      * @return Whether a member should live or die
      */
-    Boolean shouldDie(Member member);
+    Boolean shouldDie(Member member,int size);
 
 }

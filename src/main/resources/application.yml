@@ -10,7 +10,7 @@ scheduler:
   poolSize: 200
 
 cron:
-  schedule: 0 0/1 * * * ?
+  schedule: 0 0/2 * * * ?
 
 dryRun: false
 
@@ -38,7 +38,7 @@ spring:
     
 security:
   user:
-    name: magg
+    name: hai
     password: 78fa095d-3f4c-48b1-ad50-e24c31d5cf69
        
 failure:

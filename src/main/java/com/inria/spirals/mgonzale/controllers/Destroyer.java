@@ -59,6 +59,7 @@ final class Destroyer {
     
     private final FailureMode fm;
 
+
     @Autowired
     Destroyer(@Value("${dryRun:false}") Boolean dryRun,
               ExecutorService executorService,
@@ -95,6 +96,7 @@ final class Destroyer {
         }
 
         doDestroy(this.taskRepository.create(Trigger.SCHEDULED));
+
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/chaos", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -121,6 +123,7 @@ final class Destroyer {
     private void doDestroy(Task task) {
         List<Member> destroyedMembers = new CopyOnWriteArrayList<>();
         UUID identifier = UUID.randomUUID();
+        int size=this.infrastructure.getMembers().size();
 
         this.logger.info("{} Beginning run...", identifier);
 
@@ -130,7 +133,7 @@ final class Destroyer {
         try {
             this.infrastructure.getMembers().stream()
             .map(member -> this.executorService.submit(() -> {
-                if (this.fateEngine.shouldDie(member)) {
+                if (this.fateEngine.shouldDie(member,size)) {
                     try {
                         this.logger.debug("{} Destroying: {}", identifier, member);
 
